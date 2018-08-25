@@ -49,8 +49,6 @@ def load_data_set(dataset, path_to_source):
         from handler_UCI_SkillCraft import read_all
         data = read_all(scaling = 'MeanVar')
         X, Y = data[:,:-1], data[:,-1]
-        Y = np.log(Y) # Using Logarithmic Data
-        log_tf = True
     else:
         raise NotImplementedError('Load data: Data set does not exist.')
     return X, Y, log_tf
@@ -78,6 +76,9 @@ def load_estimator(estimator_kwargs, path_to_source):
     elif name == 'knn':
         from sklearn.neighnors import KNeighborsRegressor
         estim = KNeighborsRegressor()
+    elif name == 'linreg':
+        from sklearn.linear_model import LinearRegression
+        estim = LinearRegression()
     else:
         raise NotImplementedError('Load estimator: Estimator set does not exist.')
     return estim
