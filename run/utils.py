@@ -1,6 +1,7 @@
 # coding: utf8
-import sys
 import copy
+import sys
+
 import numpy as np
 
 
@@ -17,14 +18,10 @@ def load_data_set(dataset, path_to_source):
         from handler_AutoMPG import read_all
         data = read_all(scaling = 'MeanVar')
         X, Y = data[:,:-1], data[:,-1]
-        Y = np.log(Y) # Using Logarithmic Data
-        log_tf = True
     elif dataset == 'concrete':
         from handler_UCI_Concrete import read_all
         data = read_all(scaling = 'MeanVar')
         X, Y = data[:,:-1], data[:,-1]
-        Y = np.log(Y) # Using Logarithmic Data
-        log_tf = True
     elif dataset == 'ames':
         from handler_AmesHousing import read_all
         data = read_all(scaling = 'MeanVar', feature_subset = 'intuitive')
@@ -40,6 +37,7 @@ def load_data_set(dataset, path_to_source):
         data = read_all(scaling = 'MeanVar')
         X, Y = data[:,:-1], data[:,-1]
     elif dataset == 'powerplant':
+        # Not used
         from handler_UCI_CombinedCyclePowerPlant import read_all
         data = read_all()
         X, Y = data[:,:-1], data[:,-1]
@@ -49,15 +47,33 @@ def load_data_set(dataset, path_to_source):
         from handler_UCI_SkillCraft import read_all
         data = read_all(scaling = 'MeanVar')
         X, Y = data[:,:-1], data[:,-1]
+        Y = np.log(Y) # Using Logarithmic Data
+        log_tf = True
+    elif dataset == 'airfoil':
+        # Not used
+        from handler_UCI_Airfoil import read_all
+        data = read_all(scaling = 'MeanVar')
+        X, Y = data[:,:-1], data[:,-1]
+    elif dataset == 'yacht':
+        from handler_UCI_Yacht import read_all
+        data = read_all(scaling = 'MeanVar')
+        X, Y = data[:,:-1], data[:,-1]
+        Y = np.log(Y) # Using Logarithmic Data
+        log_tf = True
+    elif dataset == 'EUStockExchange':
+        from handler_EUStockExchange import read_all
+        data = read_all(scaling = 'MeanVar')
+        X, Y = data[:,:-1], data[:,-1]
+        Y = np.log(Y)
+        log_tf = True
     else:
         raise NotImplementedError('Load data: Data set does not exist.')
     return X, Y, log_tf
 
 
-
 def load_estimator(estimator_kwargs, path_to_source):
     sys.path.insert(0, path_to_source + '/simple_estimation/')
-    sys.path.insert(0, path_to_source + '/nsim_estimator/')
+    sys.path.insert(0, path_to_source + '/nsim_algorithm/')
     name = estimator_kwargs['estimator']
     copy_dict = copy.deepcopy(estimator_kwargs)
     del copy_dict['estimator']
@@ -70,9 +86,9 @@ def load_estimator(estimator_kwargs, path_to_source):
     elif name == 'PHDKnn':
         from simple_estimation.estimators.PHDKnn import PHDKnn
         estim = PHDKnn(**copy_dict)
-    elif name == 'lsim':
-        from nsim_estimator.estimators.tanPerLVSet import NSIMEst_TPLVSet
-        estim = NSIMEst_TPLVSet(**copy_dict)
+    elif name == 'nsim':
+        from nsim_algorithm.estimator import NSIM_Estimator
+        estim = NSIM_Estimator(**copy_dict)
     elif name == 'knn':
         from sklearn.neighnors import KNeighborsRegressor
         estim = KNeighborsRegressor()
@@ -80,5 +96,5 @@ def load_estimator(estimator_kwargs, path_to_source):
         from sklearn.linear_model import LinearRegression
         estim = LinearRegression()
     else:
-        raise NotImplementedError('Load estimator: Estimator set does not exist.')
+        raise NotImplementedError('Load estimator: Estimator does not exist.')
     return estim
