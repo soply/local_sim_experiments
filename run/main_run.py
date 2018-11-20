@@ -18,9 +18,6 @@ path_to_source = '../..'
 def run_experiment(arguments):
     # Load data set
     X, Y, log_tf = load_data_set(arguments['dataset'], path_to_source)
-    import matplotlib.pyplot as plt
-    plt.plot(np.sort(Y))
-    plt.show()
     estim = load_estimator(arguments['estimator_kwargs'], path_to_source)
     # Prepare for experiments
     n_test_sets = arguments['n_test_sets']
@@ -50,12 +47,14 @@ def run_experiment(arguments):
         Y_predict = reg.best_estimator_.predict(X_test)
         end = time.time()
         best_parameters[test_iter] = reg.best_params_
+        if arguments['estimator_kwargs']['estimator'] in ['isotron', 'slisotron']:
+            best_parameters[test_iter] = reg.best_estimator_.n_iter_cv()
         if log_tf:
             test_error[test_iter] = np.sqrt(mean_squared_error(np.exp(Y_test), np.exp(Y_predict)))
         else:
             test_error[test_iter] = np.sqrt(mean_squared_error(Y_test, Y_predict))
         computational_time[test_iter] = end - start
-        if arguments['estimator_kwargs']['estimator'] == 'lsim':
+        if arguments['estimator_kwargs']['estimator'] == 'nsim':
             almost_linearity_param[test_iter] = reg.best_estimator_.measure_almost_linearity()
         test_iter += 1
         print best_parameters
@@ -79,7 +78,7 @@ def run_experiment(arguments):
         np.savetxt('../results/' + filename_mod + '/computational_time_summary.txt', [mean_computational_time])
         np.savetxt('../results/' + filename_mod + '/test_errors_summary.txt', np.array([mean_error, std_error]))
         np.save('../results/' + filename_mod + '/best_params.npy', best_parameters)
-        if arguments['estimator_kwargs']['estimator'] == 'lsim':
+        if arguments['estimator_kwargs']['estimator'] == 'nsim':
             np.savetxt('../results/' + filename_mod + '/almost_linearity_param.txt', almost_linearity_param)
             np.savetxt('../results/' + filename_mod + '/almost_linearity_summary.txt', [mean_almost_linearity_param])
         with open('../results/' + filename_mod + '/best_params_json.txt', 'w') as file:
@@ -99,19 +98,20 @@ if __name__ == '__main__':
     print 'Using n_jobs = {0}'.format(n_jobs)
     # Data set
     arguments = {
-        'filename' : 'yacht', # Name to store results
-        'dataset' : 'EUStockExchange', # Data set identifier
+        'filename' : 'test_elm', # Name to store results
+        'dataset' : 'auto_mpg', # Data set identifier
         'n_jobs' : n_jobs, # number of jobs to run in cv mode
         'n_test_sets' : 30, # number of repititions of the experiment
         'test_size' : 0.15, # size of the test set
         'cv_folds' : 5, # CV is used for parameter choices
         'estimator_kwargs' : { # Estimator details
-            'estimator' : 'nsim',
-            'split_by' : 'stateq',
+            'estimator' : 'elm',
+            'alpha' : 0.0,
+            'activation_func' : 'sigmoid',
+            # 'qp_solver' : None
         },
         'param_grid' : {
-            'n_levelsets' : [i+1 for i in range(10)],
-            'n_neighbors' : np.arange(1,20).tolist()
+            'n_hidden' : np.arange(2,50).tolist()
         }
     }
     run_experiment(arguments)

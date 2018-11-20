@@ -74,6 +74,7 @@ def load_data_set(dataset, path_to_source):
 def load_estimator(estimator_kwargs, path_to_source):
     sys.path.insert(0, path_to_source + '/simple_estimation/')
     sys.path.insert(0, path_to_source + '/nsim_algorithm/')
+    sys.path.insert(0, path_to_source + '/Python-ELM/')
     name = estimator_kwargs['estimator']
     copy_dict = copy.deepcopy(estimator_kwargs)
     del copy_dict['estimator']
@@ -95,6 +96,15 @@ def load_estimator(estimator_kwargs, path_to_source):
     elif name == 'linreg':
         from sklearn.linear_model import LinearRegression
         estim = LinearRegression()
+    elif name == 'isotron':
+        from simple_estimation.estimators.Isotron import IsotronCV
+        estim = IsotronCV(**copy_dict)
+    elif name == 'slisotron':
+        from simple_estimation.estimators.Slisotron import SlisotronCV
+        estim = SlisotronCV(**copy_dict)
+    elif name == 'elm':
+        from elm import ELMRegressor
+        estim = ELMRegressor(**copy_dict)
     else:
         raise NotImplementedError('Load estimator: Estimator does not exist.')
     return estim

@@ -66,9 +66,33 @@ def plot_n_levelset_dependency_several(base_sources, labels):
     plt.ylim([0.5,2.0])
     plt.show()
 
+
+def print_average_best_parameters(folder):
+    """ Assumes there exists a "best_params.npy" file in folder."""
+    A = np.load(folder + '/best_params.npy')
+    results = A[()]
+    n_runs = len(results.keys())
+    n_params = len(results[0].keys())
+    params = {}
+    print "Processing {0}...".format(folder)
+    for i, (key, val) in enumerate(results.iteritems()):
+        for j, (key2, val2) in enumerate(val.iteritems()):
+            if key2 in params:
+                params[key2].append(val2)
+            else:
+                params[key2] = [val2]
+    for key in params.keys():
+        print "{0}  : {1}".format(key, np.mean(params[key]))
+
+
 if __name__ == "__main__":
-    base_source = ['../results/auto_mpg','../results/conrete_','../results/new_ames_',
-        '../results/airquality','../results/powerplant','../results/skillcraft_',
-        '../results/boston_','../results/yacht_','../results/EUStockExchange_']
-    labels = ['Auto', 'Concrete', 'Ames Housing', 'Airquality', 'Powerplant', 'Skillcraft', 'Boston', 'Yacht','EUStock']
-    plot_n_levelset_dependency_several(base_source, labels)
+    # base_source = ['../results/auto_mpg','../results/conrete_','../results/new_ames_',
+    #     '../results/airquality','../results/powerplant','../results/skillcraft_',
+    #     '../results/boston_','../results/yacht_','../results/EUStockExchange_']
+    # labels = ['Auto', 'Concrete', 'Ames Housing', 'Airquality', 'Powerplant', 'Skillcraft', 'Boston', 'Yacht','EUStock']
+    # plot_n_levelset_dependency_several(base_source, labels)
+    import os
+    base_source = [x[0] for x in os.walk("../results/")][1:] # First one is just "../results"
+    import pdb; pdb.set_trace()
+    for folder in base_source:
+        print_average_best_parameters(folder)
