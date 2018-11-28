@@ -1,17 +1,24 @@
+# coding: utf8
+"""
+File to run real data experiments.
+"""
+import json
 import os
 import sys
 import time
 
 import numpy as np
 import sklearn
-import json
-from utils import load_data_set, load_estimator
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.model_selection import GridSearchCV as GSCV
 from sklearn.model_selection import KFold, ShuffleSplit
 
-# Path leading to source of data set and estimator definitions
+from utils import load_data_set, load_estimator
+
+# Relative path leading to the repositories "github.com/soply/db_hand",
+# "github.com/soply/simple_estimation", "github.com/soply/nsim_algorithm",
+# "github.com/dclambert/Python-ELM"
 path_to_source = '../..'
 
 
@@ -94,24 +101,27 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         n_jobs = int(sys.argv[1])
     else:
-        n_jobs = 4 # Default 4 jobs
+        n_jobs = 1 # Default 1 jobs
     print 'Using n_jobs = {0}'.format(n_jobs)
     # Data set
     arguments = {
-        'filename' : 'test_elm', # Name to store results
+        'filename' : 'Auto_FFNN_Sigmoid', # Name to store results
         'dataset' : 'auto_mpg', # Data set identifier
         'n_jobs' : n_jobs, # number of jobs to run in cv mode
         'n_test_sets' : 30, # number of repititions of the experiment
         'test_size' : 0.15, # size of the test set
         'cv_folds' : 5, # CV is used for parameter choices
-        'estimator_kwargs' : { # Estimator details
-            'estimator' : 'elm',
-            'alpha' : 0.0,
-            'activation_func' : 'sigmoid',
+        'estimator_kwargs' : { # Estimator details, content depends on the estimator
+            'estimator' : 'ffnn',
+            'general_options' : {
+                'learning_rate' : 0.01,
+                'n_iter' : 10000,
+                'valid_size' : 0.1,
+            }
             # 'qp_solver' : None
         },
         'param_grid' : {
-            'n_hidden' : np.arange(2,50).tolist()
+            'n_hidden' : np.arange(2,20).tolist()
         }
     }
     run_experiment(arguments)

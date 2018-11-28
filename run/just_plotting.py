@@ -1,5 +1,7 @@
 # coding: utf8
-
+"""
+Auxiliary functions to create some plots, not useful in general.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -74,7 +76,6 @@ def print_average_best_parameters(folder):
     n_runs = len(results.keys())
     n_params = len(results[0].keys())
     params = {}
-    print "Processing {0}...".format(folder)
     for i, (key, val) in enumerate(results.iteritems()):
         for j, (key2, val2) in enumerate(val.iteritems()):
             if key2 in params:
@@ -82,7 +83,9 @@ def print_average_best_parameters(folder):
             else:
                 params[key2] = [val2]
     for key in params.keys():
-        print "{0}  : {1}".format(key, np.mean(params[key]))
+        if key == 'n_hidden':
+            print "Processing {0}...".format(folder)
+            print "{0}  : {1}".format(key, np.mean(params[key]))
 
 
 if __name__ == "__main__":

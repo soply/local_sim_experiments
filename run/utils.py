@@ -1,4 +1,7 @@
 # coding: utf8
+"""
+Contains utilities such as data set loader and estimator loader.
+"""
 import copy
 import sys
 
@@ -6,6 +9,18 @@ import numpy as np
 
 
 def load_data_set(dataset, path_to_source):
+    """
+    Loads a specific data set given by the identifier 'dataset'. Path to source
+    should contain the data set handlers given in repository "github.com/soply/db_hand".
+
+    Parameters
+    ------------
+    dataset : string
+        Identifier for the data set
+
+    path_to_source : string
+        Folder where data set git repository "github.com/soply/db_hand" is cloned to.
+    """
     sys.path.insert(0, path_to_source + '/DataSets/')
     log_tf = False
     if dataset == 'boston':
@@ -37,7 +52,6 @@ def load_data_set(dataset, path_to_source):
         data = read_all(scaling = 'MeanVar')
         X, Y = data[:,:-1], data[:,-1]
     elif dataset == 'powerplant':
-        # Not used
         from handler_UCI_CombinedCyclePowerPlant import read_all
         data = read_all()
         X, Y = data[:,:-1], data[:,-1]
@@ -50,7 +64,6 @@ def load_data_set(dataset, path_to_source):
         Y = np.log(Y) # Using Logarithmic Data
         log_tf = True
     elif dataset == 'airfoil':
-        # Not used
         from handler_UCI_Airfoil import read_all
         data = read_all(scaling = 'MeanVar')
         X, Y = data[:,:-1], data[:,-1]
@@ -72,22 +85,37 @@ def load_data_set(dataset, path_to_source):
 
 
 def load_estimator(estimator_kwargs, path_to_source):
-    sys.path.insert(0, path_to_source + '/simple_estimation/')
-    sys.path.insert(0, path_to_source + '/nsim_algorithm/')
-    sys.path.insert(0, path_to_source + '/Python-ELM/')
+    """
+    Loads a specific estimator. Path to source should contain source code for
+    the nsim algorithm ("github.com/soply/nsim_algorithm"), simple estimators ("github.com/soply/simple_estimation")
+    and ELM "github.com/dclambert/Python-ELM". Other estimators
+    can be added flexible.
+
+    Parameters
+    ------------
+    estimator_kwargs : dict
+        Contains estimator name, and additional arguments if necessary.
+
+    path_to_source : string
+        Folder where source code for other estimators is hosted.
+    """
     name = estimator_kwargs['estimator']
     copy_dict = copy.deepcopy(estimator_kwargs)
     del copy_dict['estimator']
     if name == 'SIRKnn':
+        sys.path.insert(0, path_to_source + '/simple_estimation/')
         from simple_estimation.estimators.SIRKnn import SIRKnn
         estim = SIRKnn(**copy_dict)
     elif name == 'SAVEKnn':
+        sys.path.insert(0, path_to_source + '/simple_estimation/')
         from simple_estimation.estimators.SAVEKnn import SAVEKnn
         estim = SAVEKnn(**copy_dict)
     elif name == 'PHDKnn':
+        sys.path.insert(0, path_to_source + '/simple_estimation/')
         from simple_estimation.estimators.PHDKnn import PHDKnn
         estim = PHDKnn(**copy_dict)
     elif name == 'nsim':
+        sys.path.insert(0, path_to_source + '/nsim_algorithm/')
         from nsim_algorithm.estimator import NSIM_Estimator
         estim = NSIM_Estimator(**copy_dict)
     elif name == 'knn':
@@ -97,14 +125,20 @@ def load_estimator(estimator_kwargs, path_to_source):
         from sklearn.linear_model import LinearRegression
         estim = LinearRegression()
     elif name == 'isotron':
+        sys.path.insert(0, path_to_source + '/simple_estimation/')
         from simple_estimation.estimators.Isotron import IsotronCV
         estim = IsotronCV(**copy_dict)
     elif name == 'slisotron':
+        sys.path.insert(0, path_to_source + '/simple_estimation/')
         from simple_estimation.estimators.Slisotron import SlisotronCV
-        estim = SlisotronCV(**copy_dict)
+        estim = SlisotronCV(**copy_dict) # Super slow implementation
     elif name == 'elm':
+        sys.path.insert(0, path_to_source + '/Python-ELM/')
         from elm import ELMRegressor
         estim = ELMRegressor(**copy_dict)
+    elif name == 'ffnn':
+        from simple_estimation.estimators.FeedForwardNetwork import FeedForwardNetwork
+        estim = FeedForwardNetwork(**copy_dict)
     else:
         raise NotImplementedError('Load estimator: Estimator does not exist.')
     return estim
